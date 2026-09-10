@@ -1,29 +1,32 @@
 {
-  "name": "open-pstack",
+  "name": "rstack",
   "owner": {
-    "name": "Eric Litman"
+    "name": "Rafael Otero"
   },
-  "description": "Pstack for Claude Code and Codex, tracking Cursor's upstream pstack.",
+  "description": "Rafael's personal Claude Code skill sets: rstack (fork of open-pstack) and matt-skills (Matt Pocock's skills).",
   "plugins": [
     {
-      "name": "pstack",
-      "source": "./plugins/pstack",
-      "description": "if you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence.",
+      "name": "rstack",
+      "source": "./plugins/rstack",
+      "description": "if you want to go fast, go deep first. rstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence.",
       "version": "1.2.1",
       "author": {
-        "name": "Lauren Tan (original)"
+        "name": "Lauren Tan (original), Eric Litman (open-pstack)"
       },
       "homepage": "https://github.com/ericlitman/open-pstack",
       "license": "MIT",
-      "keywords": [
-        "pstack",
-        "poteto-mode",
-        "workflow",
-        "principles",
-        "agent-style",
-        "subagents",
-        "unslop"
-      ]
+      "keywords": ["rstack", "pstack", "poteto-mode", "workflow", "principles", "agent-style", "subagents", "unslop"]
+    },
+    {
+      "name": "matt-skills",
+      "source": "./plugins/matt-skills",
+      "description": "Matt Pocock's skills (planning, grilling, TDD, research, ...) as installed via npx skills, with local tweaks.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Pocock (original)"
+      },
+      "homepage": "https://github.com/mattpocock/skills",
+      "keywords": ["matt-pocock", "planning", "grilling", "tdd"]
     }
   ]
 }

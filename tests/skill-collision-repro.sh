@@ -6,7 +6,7 @@ fail=0
 
 note() { printf '%s\n' "$*"; }
 
-legacy_command_dir="$repo/plugins/pstack/commands"
+legacy_command_dir="$repo/plugins/rstack/commands"
 if [ -e "$legacy_command_dir" ]; then
   note "FAIL: legacy command layer still exists: $legacy_command_dir"
   find "$legacy_command_dir" -mindepth 1 -print 2>/dev/null || true
@@ -16,7 +16,7 @@ else
 fi
 
 bad_principle=""
-for skill in "$repo"/plugins/pstack/skills/principle-*/SKILL.md; do
+for skill in "$repo"/plugins/rstack/skills/principle-*/SKILL.md; do
   if [ ! -f "$skill" ]; then
     bad_principle="no principle-* leaves found"$'\n'
     break
@@ -34,8 +34,8 @@ else
 fi
 
 verof() { { grep -m1 '"version"' "$1" || true; } | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/'; }
-vc="$(verof "$repo/plugins/pstack/.claude-plugin/plugin.json")"
-vx="$(verof "$repo/plugins/pstack/.codex-plugin/plugin.json")"
+vc="$(verof "$repo/plugins/rstack/.claude-plugin/plugin.json")"
+vx="$(verof "$repo/plugins/rstack/.codex-plugin/plugin.json")"
 vm="$(verof "$repo/.claude-plugin/marketplace.json")"
 vu="$(sed -n 's/| open-pstack version | `\([^`]*\)` |/\1/p' "$repo/UPSTREAM.md")"
 if [ -n "$vc" ] && [ "$vc" = "$vx" ] && [ "$vc" = "$vm" ] && [ "$vc" = "$vu" ]; then
@@ -52,7 +52,7 @@ legacy_model_pins="$(
   grep -REn \
     --include='*.md' --include='*.ts' --include='*.sh' \
     'claude:claude-(fable|opus)-[0-9]|^model: claude-(fable|opus)-[0-9]|--model claude-(fable|opus)-[0-9]' \
-    "$repo/plugins/pstack" "$repo/tests" "$repo/README.md" "$repo/docs/reference.md" \
+    "$repo/plugins/rstack" "$repo/tests" "$repo/README.md" "$repo/docs/reference.md" \
     2>/dev/null || true
 )"
 standalone_code_pins="$(
@@ -60,7 +60,7 @@ standalone_code_pins="$(
     --include='*.ts' --include='*.js' \
     --exclude='*.test.ts' --exclude='*.test.js' \
     "['\"]claude-(fable|opus)-[0-9]" \
-    "$repo/plugins/pstack" \
+    "$repo/plugins/rstack" \
     2>/dev/null || true
 )"
 if [ -n "$legacy_model_pins" ] || [ -n "$standalone_code_pins" ]; then
@@ -73,9 +73,9 @@ else
 fi
 
 # Static invariant (CHANGES maintenance note): provider-dispatch owns the default
-# provider/model quad and the four panel skills plus setup-pstack copy it verbatim.
-setup="$repo/plugins/pstack/skills/setup-pstack/SKILL.md"
-dispatch="$repo/plugins/pstack/skills/poteto-mode/references/provider-dispatch.md"
+# provider/model quad and the four panel skills plus setup-rstack copy it verbatim.
+setup="$repo/plugins/rstack/skills/setup-rstack/SKILL.md"
+dispatch="$repo/plugins/rstack/skills/poteto-mode/references/provider-dispatch.md"
 quad_of() { { grep -oE '(claude|codex|grok):[a-z0-9.-]+@(low|medium|high|xhigh|max)' || true; } | tr '\n' ' ' | sed 's/ $//'; }
 canon_quad="$(awk '
   $0 == "## Model matrix" { in_matrix = 1; next }
@@ -102,12 +102,12 @@ canon_quad="$(awk '
 quad_bad=""
 [ -n "$canon_quad" ] || quad_bad="could not read the canonical quad from $dispatch"$'\n'
 # Anchor on the quad's last slug rather than a hard-coded one, so a model swap in
-# setup-pstack cannot leave this check hunting for a slug nobody ships any more.
+# setup-rstack cannot leave this check hunting for a slug nobody ships any more.
 anchor="${canon_quad##* }"
 # arena, architect, and how each state the quad on one line; interrogate lists it
 # as one slug per row of its Reviewer A/B/C/D table (upstream #167).
 for name in arena architect how; do
-  skill="$repo/plugins/pstack/skills/$name/SKILL.md"
+  skill="$repo/plugins/rstack/skills/$name/SKILL.md"
   n="$(grep -Fc "$anchor" "$skill" || true)"
   if [ "$n" != "1" ]; then
     quad_bad="$quad_bad$skill: expected exactly 1 default-quad line, found $n"$'\n'
@@ -116,7 +116,7 @@ for name in arena architect how; do
   got="$(grep -F "$anchor" "$skill" | quad_of)"
   [ "$got" = "$canon_quad" ] || quad_bad="$quad_bad$skill: [$got] != [$canon_quad]"$'\n'
 done
-interrogate="$repo/plugins/pstack/skills/interrogate/SKILL.md"
+interrogate="$repo/plugins/rstack/skills/interrogate/SKILL.md"
 got="$(grep -E '^\| Reviewer [A-Z] \|' "$interrogate" | quad_of)"
 [ "$got" = "$canon_quad" ] || quad_bad="$quad_bad$interrogate reviewer table: [$got] != [$canon_quad]"$'\n'
 while IFS= read -r line; do
@@ -124,14 +124,14 @@ while IFS= read -r line; do
   [ "$got" = "$canon_quad" ] || quad_bad="$quad_bad$setup role row: [$got] != [$canon_quad]"$'\n'
 done < <(grep -E '^(arena runners|arena cross-judge pool|architect runners|interrogate reviewers|how critics):' "$setup")
 if [ -n "$quad_bad" ]; then
-  note "FAIL: the default model quad is not identical across provider dispatch, the panel skills, and setup-pstack:"
+  note "FAIL: the default model quad is not identical across provider dispatch, the panel skills, and setup-rstack:"
   note "$quad_bad"
   fail=1
 else
-  note "ok: default model quad identical across provider dispatch + 4 panel skills + setup-pstack ($canon_quad)"
+  note "ok: default model quad identical across provider dispatch + 4 panel skills + setup-rstack ($canon_quad)"
 fi
 
-plugin="$repo/plugins/pstack"
+plugin="$repo/plugins/rstack"
 canon="$plugin/skills/poteto-mode/references/bugbot-triage.md"
 skill="$plugin/skills/babysit/SKILL.md"
 playbook="$plugin/skills/poteto-mode/playbooks/babysit.md"

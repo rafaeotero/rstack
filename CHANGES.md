@@ -28,7 +28,7 @@ Claude-native dispatch ships Fable and Opus agents at all five efforts. Names ar
 
 ## 1.0.1 removes duplicate workflow entries
 
-Claude Code and Codex both load the native `plugins/pstack/skills/` tree. Codex 0.149.0 also converts each `plugins/pstack/commands/*.md` file into a generated `.codex-plugin/migrated-command-skills/source-command-*/SKILL.md`. The 31 same-named command trampolines therefore doubled Codex's workflow inventory. Claude's component inventory also registered both layers, although Claude Desktop visually merged the duplicate names.
+Claude Code and Codex both load the native `plugins/rstack/skills/` tree. Codex 0.149.0 also converts each `plugins/rstack/commands/*.md` file into a generated `.codex-plugin/migrated-command-skills/source-command-*/SKILL.md`. The 31 same-named command trampolines therefore doubled Codex's workflow inventory. Claude's component inventory also registered both layers, although Claude Desktop visually merged the duplicate names.
 
 This release deletes all 31 command trampolines. The native skill tree is now the only workflow source. Claude Code still supports both model-initiated `Skill` tool calls and user `/pstack:<name>` invocations through each native `SKILL.md`. Codex loads that same tree without generated source-command copies. The 21 `principle-*` leaves declare `user-invocable: false`; Claude hides them, while Codex 0.149.0 currently ignores that picker metadata ([#8](https://github.com/ericlitman/open-pstack/issues/8)).
 
@@ -56,7 +56,7 @@ The v0.14.2 sync kept pstack's workflow structure but replaced upstream's Fable 
 
 ## 0.9.11 — sync to upstream v0.14.2
 
-Catches the port up with upstream `cursor/plugins/pstack` from `3fe2823` (v0.11.3) to `4612556` (v0.14.2). Skills 48 → 52, commands 27 → 31, subagents 1 → 2, plus a vendored `scripts/` tree under `poteto-mode/`.
+Catches the port up with upstream `cursor/plugins/rstack` from `3fe2823` (v0.11.3) to `4612556` (v0.14.2). Skills 48 → 52, commands 27 → 31, subagents 1 → 2, plus a vendored `scripts/` tree under `poteto-mode/`.
 
 **New skills.**
 
@@ -87,7 +87,7 @@ Substitutions in the six: Cursor cloud agents become local background subagents 
 
 ## 0.9.10 — sync to upstream v0.11.3
 
-Catches the port up with upstream `cursor/plugins/pstack` from `0452e08` (v0.10.0) to `3fe2823` (v0.11.3). Skill count 44 → 48, commands 24 → 27.
+Catches the port up with upstream `cursor/plugins/rstack` from `0452e08` (v0.10.0) to `3fe2823` (v0.11.3). Skill count 44 → 48, commands 24 → 27.
 
 **New skills.**
 
@@ -137,7 +137,7 @@ One upstream pstack commit landed after the `e46364b` sync: `0452e08` adds the d
 
 ## 0.9.5 — poteto-mode auto-fires via SessionStart hook
 
-`plugins/pstack/hooks/` is new. `hooks.json` registers a `SessionStart` hook (matcher `startup|clear|compact`) that injects `hooks/session-start-context.md` (~0.3k tokens) as additional context — the same mechanism superpowers uses to auto-load its skill-use mandate. The injected block routes any non-trivial engineering task into `pstack:poteto-mode` before the first response, lists the direct-entry skills, tells dispatched subagents to ignore it, and defers to explicit user instructions. The full poteto-mode skill still loads only on invoke. `run-hook.cmd` (cross-platform polyglot) and the JSON-emission pattern in `session-start` are adapted from superpowers (MIT; see NOTICE.md and LICENSE-superpowers). Codex is unaffected — it has no plugin hook runtime; invoke poteto-mode by name there.
+`plugins/rstack/hooks/` is new. `hooks.json` registers a `SessionStart` hook (matcher `startup|clear|compact`) that injects `hooks/session-start-context.md` (~0.3k tokens) as additional context — the same mechanism superpowers uses to auto-load its skill-use mandate. The injected block routes any non-trivial engineering task into `pstack:poteto-mode` before the first response, lists the direct-entry skills, tells dispatched subagents to ignore it, and defers to explicit user instructions. The full poteto-mode skill still loads only on invoke. `run-hook.cmd` (cross-platform polyglot) and the JSON-emission pattern in `session-start` are adapted from superpowers (MIT; see NOTICE.md and LICENSE-superpowers). Codex is unaffected — it has no plugin hook runtime; invoke poteto-mode by name there.
 
 ## 0.9.4 — Sonnet 5 joins the default panels
 
@@ -155,9 +155,9 @@ pstack diverges from superpowers in one respect, and it is deliberate. superpowe
 
 **Added.**
 
-- `plugins/pstack/.codex-plugin/plugin.json` is the Codex plugin manifest (`skills: ./skills/`), with key-parity to the `superpowers` Codex manifest.
-- `.agents/plugins/marketplace.json` is the Codex marketplace manifest at the repo root, sourcing `./plugins/pstack` the way the Claude `.claude-plugin/marketplace.json` does.
-- `plugins/pstack/skills/poteto-mode/references/codex-tools.md` is the single Claude to Codex map. It covers tool actions (`Agent` becomes `spawn_agent` / `wait_agent` / `close_agent`, `AskUserQuestion` becomes plain text, the todolist becomes `update_plan`), the `multi_agent` config flag, subagent policy (Codex has no `poteto-agent` type, so dispatch a `spawn_agent` told to read `poteto-mode` first), model slugs (`claude-*` becomes your configured Codex models), the Claude built-ins pstack names (`run`, `verify`, `loop`, `plugin-dev:skill-development`), and the instructions file (`AGENTS.md`).
+- `plugins/rstack/.codex-plugin/plugin.json` is the Codex plugin manifest (`skills: ./skills/`), with key-parity to the `superpowers` Codex manifest.
+- `.agents/plugins/marketplace.json` is the Codex marketplace manifest at the repo root, sourcing `./plugins/rstack` the way the Claude `.claude-plugin/marketplace.json` does.
+- `plugins/rstack/skills/poteto-mode/references/codex-tools.md` is the single Claude to Codex map. It covers tool actions (`Agent` becomes `spawn_agent` / `wait_agent` / `close_agent`, `AskUserQuestion` becomes plain text, the todolist becomes `update_plan`), the `multi_agent` config flag, subagent policy (Codex has no `poteto-agent` type, so dispatch a `spawn_agent` told to read `poteto-mode` first), model slugs (`claude-*` becomes your configured Codex models), the Claude built-ins pstack names (`run`, `verify`, `loop`, `plugin-dev:skill-development`), and the instructions file (`AGENTS.md`).
 
 **Platform notes (pointer-only edits).**
 
@@ -173,7 +173,7 @@ pstack diverges from superpowers in one respect, and it is deliberate. superpowe
 
 **Verified.** Codex discovers the skills and namespaces them under `pstack` (`pstack:poteto-mode` and so on) in a live session. Mapping resolution mid-task and `spawn_agent` fan-out follow the `superpowers` pattern and are worth confirming per session.
 
-**Maintenance.** The open-pstack version string lives in `plugins/pstack/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `plugins/pstack/.codex-plugin/plugin.json`, and the current-version row in `UPSTREAM.md`. A version bump must update all four. `tests/skill-collision-repro.sh` checks that they match. `.agents/plugins/marketplace.json` carries no version field. The canonical default panel quad is the model matrix in `provider-dispatch.md` (`provider:model@default` in family-row order). It is copied into the four panel skills (`arena`, `architect`, `how`, `interrogate`) and the `setup-pstack` first-run sheet. Keep those copies grep-identical when models change. The static test derives the quad from the matrix. After a sync that touches `skills/poteto-mode/scripts/`, run `bun install --frozen-lockfile`, `bun run test`, and `bun run typecheck` from that directory. `hooks/session-start-context.md` restates skill one-liners. Re-verify it whenever skill names or descriptions change. The package must not contain a `commands/` layer. Claude Code and Codex load the native `skills/` tree directly, and a command layer duplicates that inventory. The 21 `principle-*` leaves carry `user-invocable: false` to request exclusion from the user picker while `poteto-mode` reads them by path. Claude honors the metadata; Codex 0.149.0 currently does not ([#8](https://github.com/ericlitman/open-pstack/issues/8)). They must not carry `disable-model-invocation`, which would make them unreachable to the model. Re-run the behavioral mode of `tests/skill-collision-repro.sh` after Claude Code upgrades to check both model-initiated and user-initiated native skill invocation.
+**Maintenance.** The open-pstack version string lives in `plugins/rstack/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `plugins/rstack/.codex-plugin/plugin.json`, and the current-version row in `UPSTREAM.md`. A version bump must update all four. `tests/skill-collision-repro.sh` checks that they match. `.agents/plugins/marketplace.json` carries no version field. The canonical default panel quad is the model matrix in `provider-dispatch.md` (`provider:model@default` in family-row order). It is copied into the four panel skills (`arena`, `architect`, `how`, `interrogate`) and the `setup-pstack` first-run sheet. Keep those copies grep-identical when models change. The static test derives the quad from the matrix. After a sync that touches `skills/poteto-mode/scripts/`, run `bun install --frozen-lockfile`, `bun run test`, and `bun run typecheck` from that directory. `hooks/session-start-context.md` restates skill one-liners. Re-verify it whenever skill names or descriptions change. The package must not contain a `commands/` layer. Claude Code and Codex load the native `skills/` tree directly, and a command layer duplicates that inventory. The 21 `principle-*` leaves carry `user-invocable: false` to request exclusion from the user picker while `poteto-mode` reads them by path. Claude honors the metadata; Codex 0.149.0 currently does not ([#8](https://github.com/ericlitman/open-pstack/issues/8)). They must not carry `disable-model-invocation`, which would make them unreachable to the model. Re-run the behavioral mode of `tests/skill-collision-repro.sh` after Claude Code upgrades to check both model-initiated and user-initiated native skill invocation.
 
 ## 0.9.2 sync (against upstream `e46364b`)
 
@@ -206,7 +206,7 @@ Upstream pstack jumped from `0.1.0` → `0.9.2` between syncs. 30+ commits, incl
 
 **Manifest changes:**
 
-- `plugins/pstack/.claude-plugin/plugin.json` — version `0.1.0` → `0.9.2`; added `displayName: "pstack (Claude Code port)"`.
+- `plugins/rstack/.claude-plugin/plugin.json` — version `0.1.0` → `0.9.2`; added `displayName: "pstack (Claude Code port)"`.
 - `.claude-plugin/marketplace.json` — plugin entry version bumped to `0.9.2`.
 
 **Team-kit imports:** unchanged. The upstream diff showed only `verify-this` (which we didn't import) changed in `cursor-team-kit/skills/`.
@@ -348,7 +348,7 @@ If you want a clean re-port (e.g. when upstream releases v0.2.0), the rebuild re
 
 ## Provenance
 
-- Upstream pstack: [cursor/plugins/pstack @ e46364b](https://github.com/cursor/plugins/tree/e46364b8be46000b7df0f260550cd712afbb8d36/pstack) — MIT, (c) 2026 Lauren Tan.
+- Upstream pstack: [cursor/plugins/rstack @ e46364b](https://github.com/cursor/plugins/tree/e46364b8be46000b7df0f260550cd712afbb8d36/pstack) — MIT, (c) 2026 Lauren Tan.
 - Upstream deslop: [cursor/plugins/cursor-team-kit/skills/deslop @ e46364b](https://github.com/cursor/plugins/tree/e46364b8be46000b7df0f260550cd712afbb8d36/cursor-team-kit/skills/deslop) — MIT, (c) 2026 Cursor.
 - babysit: independently authored; workflow informed by Cursor's public `/babysit` behavior — no code or prose copied.
 - Inspected for prior-art decisions: [v1truv1us/ai-eng-system](https://github.com/v1truv1us/ai-eng-system) (namespaces pstack under `pstack/` but keeps Cursor refs intact); [Evan-Kim2028/agent-fleet](https://github.com/Evan-Kim2028/agent-fleet) (vendors pstack under `base-kit/pstack/`, same posture).
