@@ -1,0 +1,8 @@
+{
+  "name": "matt-skills",
+  "displayName": "matt-skills",
+  "version": "0.1.0",
+  "description": "Matt Pocock's skills as installed via npx skills, with local tweaks.",
+  "author": { "name": "Matt Pocock (original)" },
+  "homepage": "https://github.com/mattpocock/skills"
+}
