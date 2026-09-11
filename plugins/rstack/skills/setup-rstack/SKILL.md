@@ -64,7 +64,8 @@ hardest tasks: claude:fable@high
 how explorer: grok:grok-4.6@high
 how explainer: claude:opus@high
 how critics: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high
-why investigators, synthesizer: inherit-parent
+why investigators: claude:opus@medium
+why synthesizer: claude:opus@high
 reflect tooling, judgment, divergent, synthesizer: inherit-parent
 arena runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high, claude:fable@medium
 arena cross-judge pool: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high, claude:fable@medium
@@ -90,7 +91,8 @@ hardest tasks: claude:fable@high
 how explorer: claude:opus@high
 how explainer: claude:opus@high
 how critics: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high
-why investigators, synthesizer: inherit-parent
+why investigators: claude:opus@medium
+why synthesizer: claude:opus@high
 reflect tooling, judgment, divergent, synthesizer: inherit-parent
 arena runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high, claude:fable@medium
 arena cross-judge pool: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high, claude:fable@medium
@@ -116,7 +118,8 @@ hardest tasks: claude:fable@high
 how explorer: claude:opus@high
 how explainer: claude:opus@high
 how critics: claude:opus@xhigh, claude:opus@high, claude:fable@medium
-why investigators, synthesizer: inherit-parent
+why investigators: claude:opus@medium
+why synthesizer: claude:opus@high
 reflect tooling, judgment, divergent, synthesizer: inherit-parent
 arena runners: claude:opus@xhigh, claude:opus@xhigh, claude:opus@high, claude:fable@medium
 arena cross-judge pool: claude:opus@xhigh, claude:opus@xhigh, claude:opus@high, claude:fable@medium
@@ -177,7 +180,7 @@ Refuse an unqualified slug, an unavailable route, a model other than the four ma
 
 Show any rolling-alias migrations as original and normalized descriptors. Then show the route table for this parent and every rendered role and descriptor. Ask for confirmation before writing.
 
-Why and Reflect require the parent's live MCP surface. Keep their investigator, reviewer, and synthesizer roles on `inherit-parent` or `auto`; the bounded external runner deliberately omits ambient MCPs. `inherit-parent` and `auto` always validate, but say when they reduce a panel's provider diversity. For panel roles, one lane runs per entry. The list length is the fan-out count. `arena cross-judge pool` is a list from which Arena chooses a provider different from the parent and base candidate when possible. `swarm workers` is the default for every worker unless a race explicitly assigns another descriptor.
+Why and Reflect require the parent's live MCP surface, which the bounded external runner deliberately omits. Keep their investigator, reviewer, and synthesizer roles on a lane that runs natively in the parent: any `claude:*` descriptor on a Claude parent, any `codex:*` descriptor on a Codex parent, or `inherit-parent` / `auto` on either. A pinned native descriptor keeps the MCP surface and the model; an alias keeps the surface and takes whatever model the parent happens to be. Never route these roles through the external runner. `inherit-parent` and `auto` always validate, but say when they reduce a panel's provider diversity. For panel roles, one lane runs per entry. The list length is the fan-out count. `arena cross-judge pool` is a list from which Arena chooses a provider different from the parent and base candidate when possible. `swarm workers` is the default for every worker unless a race explicitly assigns another descriptor.
 
 Every non-alias value must match `<provider>:<model>@<effort>` and must have passed step 6.
 
