@@ -25,15 +25,9 @@ const FAMILY_ORDER = ["fable", "sol", "grok", "opus"] as const;
 const PROVIDERS = ["claude", "codex", "grok"] as const;
 const DESCRIPTOR_RE =
   /(claude|codex|grok):[a-z0-9.-]+@(low|medium|high|xhigh|max)/g;
-const PANEL_ROLES = [
-  "how critics",
-  "arena runners",
-  "arena cross-judge pool",
-  "architect runners",
-  "interrogate reviewers",
-] as const;
 const SHEET_ROLES = [
-  "feature, refactoring",
+  "feature",
+  "refactoring",
   "bug-fix",
   "perf-issue",
   "hillclimb",
@@ -52,12 +46,28 @@ const SHEET_ROLES = [
 ] as const;
 const SETUP_SECTION_ORDER = [
   "### 2. Load current state",
-  "### 3. Parse per-family efforts",
-  "### 4. Collect one requested effort per family",
-  "### 5. Probe the four requested pairs",
-  "### 6. Render, preserving role families",
-  "### 7. Confirm and commit",
+  "### 3. Detect provider availability and choose the role map",
+  "### 4. Parse per-role descriptors",
+  "### 5. Collect role changes",
+  "### 6. Probe every distinct pair",
+  "### 7. Render",
+  "### 8. Confirm and commit",
 ] as const;
+
+// setup-rstack ships one role map per availability tier, in descending order of
+// which providers a machine can reach. Each tier drops the providers above it.
+const TIERS = [
+  { name: "full", providers: ["claude", "codex", "grok"] },
+  { name: "claude+codex", providers: ["claude", "codex"] },
+  { name: "claude-only", providers: ["claude"] },
+] as const;
+const PANEL_WIDTHS: Record<string, number> = {
+  "how critics": 3,
+  "arena runners": 4,
+  "arena cross-judge pool": 4,
+  "architect runners": 4,
+  "interrogate reviewers": 3,
+};
 
 interface MatrixRow {
   family: string;
@@ -161,12 +171,6 @@ function parseModelMatrix(markdown: string): MatrixRow[] {
   });
 }
 
-function defaultDescriptors(rows: MatrixRow[]): string[] {
-  return rows.map(
-    (row) => `${row.provider}:${row.model}@${row.defaultEffort}`
-  );
-}
-
 function parseFrontmatter(text: string): {
   fields: Record<string, string>;
   body: string;
@@ -189,20 +193,33 @@ function parseFrontmatter(text: string): {
   return { fields, body: text.slice(end + 5) };
 }
 
-function firstRunSheet(setup: string): string {
-  const match = setup.match(
-    /```markdown\n(# rstack model configuration\n[\s\S]*?)```/
-  );
-  if (!match) {
-    throw new Error("setup-rstack is missing the first-run sheet fence");
+function tierSheets(setup: string): string[] {
+  const sheets = [
+    ...setup.matchAll(/```markdown\n(# rstack model configuration\n[\s\S]*?)```/g),
+  ].map((match) => match[1]);
+  if (sheets.length !== TIERS.length) {
+    throw new Error(
+      `setup-rstack must ship one sheet per availability tier, got ${sheets.length}`
+    );
   }
-  return match[1];
+  return sheets;
+}
+
+function roleLines(sheet: string): Map<string, string> {
+  const entries = new Map<string, string>();
+  for (const line of sheet.split("\n")) {
+    const idx = line.indexOf(": ");
+    if (idx < 0 || line.startsWith("#") || line.includes(" the ")) {
+      continue;
+    }
+    entries.set(line.slice(0, idx), line.slice(idx + 2));
+  }
+  return entries;
 }
 
 describe("model matrix", () => {
   const rows = parseModelMatrix(readFileSync(DISPATCH_PATH, "utf8"));
   const setup = readFileSync(SETUP_PATH, "utf8");
-  const quad = defaultDescriptors(rows);
 
   it("owns the effort universe and first-run defaults", () => {
     expect([...EFFORTS]).toEqual(["low", "medium", "high", "xhigh", "max"]);
@@ -277,35 +294,56 @@ describe("model matrix", () => {
     expect(shipped).toEqual([...expected].sort());
   });
 
-  it("keeps setup's first-run default panel copy aligned with the matrix", () => {
-    const sheet = firstRunSheet(setup);
-    const roles = sheet
-      .split("\n")
-      .filter((line) => line.includes(": "))
-      .map((line) => line.slice(0, line.indexOf(": ")));
-    expect(roles).toEqual([...SHEET_ROLES]);
+  it("ships one complete, matrix-valid role map per availability tier", () => {
+    const sheets = tierSheets(setup);
     const byFamily = new Map<string, MatrixRow>(
       rows.map((row) => [`${row.provider}:${row.model}`, row])
     );
-    for (const descriptor of sheet.match(DESCRIPTOR_RE) ?? []) {
-      const at = descriptor.lastIndexOf("@");
-      const key = descriptor.slice(0, at);
-      const effort = descriptor.slice(at + 1);
-      const row = byFamily.get(key);
-      if (row === undefined) {
-        throw new Error(`unknown first-run descriptor: ${descriptor}`);
+    sheets.forEach((sheet, index) => {
+      const tier = TIERS[index];
+      const roles = roleLines(sheet);
+      expect([...roles.keys()]).toEqual([...SHEET_ROLES]);
+      for (const [role, value] of roles) {
+        const descriptors = value.match(DESCRIPTOR_RE) ?? [];
+        if (descriptors.length === 0) {
+          // Only the MCP-bound roles may sit on a parent alias.
+          expect(value).toMatch(/^(inherit-parent|auto)$/);
+          continue;
+        }
+        // Effort is per role now, so the only rule is that the family declares it.
+        for (const descriptor of descriptors) {
+          const at = descriptor.lastIndexOf("@");
+          const row = byFamily.get(descriptor.slice(0, at));
+          if (row === undefined) {
+            throw new Error(`${tier.name}: unknown descriptor ${descriptor}`);
+          }
+          expect(row.selectableEfforts).toContain(
+            asEffort(descriptor.slice(at + 1))
+          );
+          expect([...tier.providers] as string[]).toContain(row.provider);
+        }
+        const width = PANEL_WIDTHS[role];
+        if (width !== undefined) {
+          expect(descriptors.length).toBe(width);
+        } else {
+          expect(descriptors.length).toBe(1);
+        }
       }
-      expect(effort).toBe(row.defaultEffort);
-    }
-    const expectedPanel = quad.join(", ");
-    for (const role of PANEL_ROLES) {
-      const line = sheet
-        .split("\n")
-        .find((entry) => entry.startsWith(`${role}:`));
-      if (line === undefined) {
-        throw new Error(`missing first-run panel row: ${role}`);
+    });
+  });
+
+  it("keeps every panel's lanes distinct in every tier", () => {
+    // A panel's product is model diversity, so a narrower tier may repeat a lane
+    // only where the operator accepted it: arena-shaped generation work.
+    const repeatAllowed = new Set(["arena runners", "arena cross-judge pool", "architect runners"]);
+    for (const sheet of tierSheets(setup)) {
+      for (const [role, value] of roleLines(sheet)) {
+        if (PANEL_WIDTHS[role] === undefined || repeatAllowed.has(role)) {
+          continue;
+        }
+        const descriptors = value.match(DESCRIPTOR_RE) ?? [];
+        expect(new Set(descriptors).size).toBe(descriptors.length);
       }
-      expect(line).toBe(`${role}: ${expectedPanel}`);
     }
   });
 
@@ -319,13 +357,14 @@ describe("model matrix", () => {
     expect(setup).toContain("Do not invent a precedence rule.");
     expect(setup).toContain("Do not probe or write while any inconsistency is unresolved.");
     expect(setup).toContain("A failed probe writes nothing:");
-    expect(setup).toContain("Run one probe per family");
+    expect(setup).toContain("Probe each distinct `provider:model@effort` pair the map uses, once per pair.");
     expect(setup).toContain("normalized complete role map from step 2");
     expect(setup).toContain("starts with `claude-fable-` or `claude-opus-`");
     expect(setup).toContain("preserving the provider, effort, role, and lane order");
     expect(setup).toContain("Show any rolling-alias migrations");
     expect(setup).toContain("Every documented role remains present.");
-    expect(setup).toContain("An effort-only rerun cannot change a role's family.");
+    expect(setup).toContain("never by falling back at dispatch time");
+    expect(setup).toContain("At dispatch time an unavailable lane is still a dropout, never a silent swap.");
     expect(setup).toContain("<!-- rstack:models:begin -->");
     expect(setup).toContain("<!-- rstack:models:end -->");
   });

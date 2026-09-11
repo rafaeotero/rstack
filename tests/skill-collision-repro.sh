@@ -72,63 +72,54 @@ else
   note "ok: active Fable and Opus configuration uses rolling aliases"
 fi
 
-# Static invariant (CHANGES maintenance note): provider-dispatch owns the default
-# provider/model quad and the four panel skills plus setup-rstack copy it verbatim.
+# Static invariant (CHANGES maintenance note): setup-rstack's full availability
+# tier owns the default panels and the four panel skills copy them verbatim.
+# Panels come in two widths: arena, cross-judge, and architect run four lanes;
+# how critics and interrogate reviewers run three.
 setup="$repo/plugins/rstack/skills/setup-rstack/SKILL.md"
-dispatch="$repo/plugins/rstack/skills/poteto-mode/references/provider-dispatch.md"
 quad_of() { { grep -oE '(claude|codex|grok):[a-z0-9.-]+@(low|medium|high|xhigh|max)' || true; } | tr '\n' ' ' | sed 's/ $//'; }
-canon_quad="$(awk '
-  $0 == "## Model matrix" { in_matrix = 1; next }
-  in_matrix && /^## / { exit }
-  in_matrix && /^\|/ {
-    line = $0
-    sub(/^\|/, "", line)
-    sub(/\|$/, "", line)
-    n = split(line, cells, "|")
-    for (i = 1; i <= n; i++) {
-      gsub(/^ +| +$/, "", cells[i])
-      gsub(/`/, "", cells[i])
-    }
-    family = cells[1]
-    if (family == "Family" || family ~ /^:?-+:?$/) next
-    provider = cells[3]
-    model = cells[4]
-    effort = cells[5]
-    if (out != "") out = out " "
-    out = out provider ":" model "@" effort
-  }
-  END { print out }
-' "$dispatch")"
+# The full tier is the first fence in setup-rstack, so take the first match.
+row_of() { grep -m1 -E "^$1:" "$setup" | quad_of; }
+canon4="$(row_of 'arena runners')"
+canon3="$(row_of 'interrogate reviewers')"
 quad_bad=""
-[ -n "$canon_quad" ] || quad_bad="could not read the canonical quad from $dispatch"$'\n'
-# Anchor on the quad's last slug rather than a hard-coded one, so a model swap in
-# setup-rstack cannot leave this check hunting for a slug nobody ships any more.
-anchor="${canon_quad##* }"
-# arena, architect, and how each state the quad on one line; interrogate lists it
-# as one slug per row of its Reviewer A/B/C/D table (upstream #167).
-for name in arena architect how; do
-  skill="$repo/plugins/rstack/skills/$name/SKILL.md"
+[ -n "$canon4" ] || quad_bad="could not read the 4-lane panel from $setup"$'\n'
+[ -n "$canon3" ] || quad_bad="$quad_bad""could not read the 3-lane panel from $setup"$'\n'
+for role in 'arena cross-judge pool' 'architect runners'; do
+  got="$(row_of "$role")"
+  [ "$got" = "$canon4" ] || quad_bad="$quad_bad$setup $role: [$got] != [$canon4]"$'\n'
+done
+got="$(row_of 'how critics')"
+[ "$got" = "$canon3" ] || quad_bad="$quad_bad$setup how critics: [$got] != [$canon3]"$'\n'
+# Anchor on each panel's last slug rather than a hard-coded one, so a model swap
+# in setup-rstack cannot leave this check hunting for a slug nobody ships.
+check_skill() {
+  skill="$repo/plugins/rstack/skills/$1/SKILL.md"
+  canon="$2"
+  # Default to the panel's last slug; pass $3 when that slug also appears on an
+  # unrelated line, as grok's does for how's explorer default.
+  anchor="${3:-${canon##* }}"
   n="$(grep -Fc "$anchor" "$skill" || true)"
   if [ "$n" != "1" ]; then
-    quad_bad="$quad_bad$skill: expected exactly 1 default-quad line, found $n"$'\n'
-    continue
+    quad_bad="$quad_bad$skill: expected exactly 1 default-panel line, found $n"$'\n'
+    return
   fi
   got="$(grep -F "$anchor" "$skill" | quad_of)"
-  [ "$got" = "$canon_quad" ] || quad_bad="$quad_bad$skill: [$got] != [$canon_quad]"$'\n'
-done
+  [ "$got" = "$canon" ] || quad_bad="$quad_bad$skill: [$got] != [$canon]"$'\n'
+}
+check_skill arena "$canon4"
+check_skill architect "$canon4"
+check_skill how "$canon3" "how-critics list"
+# interrogate lists its panel as one slug per row of its Reviewer table (upstream #167).
 interrogate="$repo/plugins/rstack/skills/interrogate/SKILL.md"
 got="$(grep -E '^\| Reviewer [A-Z] \|' "$interrogate" | quad_of)"
-[ "$got" = "$canon_quad" ] || quad_bad="$quad_bad$interrogate reviewer table: [$got] != [$canon_quad]"$'\n'
-while IFS= read -r line; do
-  got="$(printf '%s\n' "$line" | quad_of)"
-  [ "$got" = "$canon_quad" ] || quad_bad="$quad_bad$setup role row: [$got] != [$canon_quad]"$'\n'
-done < <(grep -E '^(arena runners|arena cross-judge pool|architect runners|interrogate reviewers|how critics):' "$setup")
+[ "$got" = "$canon3" ] || quad_bad="$quad_bad$interrogate reviewer table: [$got] != [$canon3]"$'\n'
 if [ -n "$quad_bad" ]; then
-  note "FAIL: the default model quad is not identical across provider dispatch, the panel skills, and setup-rstack:"
+  note "FAIL: the default panels are not identical across setup-rstack and the panel skills:"
   note "$quad_bad"
   fail=1
 else
-  note "ok: default model quad identical across provider dispatch + 4 panel skills + setup-rstack ($canon_quad)"
+  note "ok: default panels identical across setup-rstack + 4 panel skills (4-lane: $canon4 | 3-lane: $canon3)"
 fi
 
 plugin="$repo/plugins/rstack"
