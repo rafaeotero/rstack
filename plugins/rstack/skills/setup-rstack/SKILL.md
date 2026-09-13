@@ -63,15 +63,15 @@ judgment and prose: claude:fable@medium
 hardest tasks: claude:fable@high
 how explorer: grok:grok-4.6@high
 how explainer: claude:opus@high
-how critics: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high
+how critics: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh
 why investigators: claude:opus@medium
 why synthesizer: claude:opus@high
 reflect tooling, judgment, divergent, synthesizer: inherit-parent
-arena runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high, claude:fable@medium
-arena cross-judge pool: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high, claude:fable@medium
+arena runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
+arena cross-judge pool: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
 swarm workers: claude:opus@medium
-architect runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high, claude:fable@medium
-interrogate reviewers: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@high
+architect runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
+interrogate reviewers: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh
 ```
 
 Claude and Codex reachable, no Grok. Every Grok role moves to Opus at the same effort:
