@@ -11,7 +11,7 @@ rstack model choices are provider-qualified descriptors:
 | Family | Upstream rstack choice | Provider | Model | Default effort | Selectable efforts | Claude-native agent stem |
 |---|---|---|---|---|---|---|
 | fable | fable | claude | fable | max | low medium high xhigh max | fable |
-| sol | gpt-5.6-sol-max | codex | gpt-5.6-sol | max | low medium high xhigh max | - |
+| sol | gpt-6.1-sol-max | codex | gpt-6.1-sol | max | low medium high xhigh max | - |
 | grok | grok-4.6-fast-xhigh | grok | grok-4.6 | xhigh | low medium high xhigh max | - |
 | opus | opus | claude | opus | xhigh | low medium high xhigh max | opus |
 
