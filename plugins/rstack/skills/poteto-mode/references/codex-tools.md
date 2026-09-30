@@ -50,7 +50,7 @@ Some triggers name skills that ship with Claude Code, not rstack. They do not ex
 | Claude built-in named in rstack | On Codex |
 |---------------------------------|----------|
 | `run` (drive a CLI/TUI to see a change work) | Run the app yourself via `shell` and observe the real output. |
-| `verify` (drive a UI to confirm a fix) | Drive the UI with whatever automation you have, or hand the user a concrete manual check. Do not claim done without observing the artifact. |
+| `verify` (drive a UI to confirm a fix) | In dionisio-crm, use `verify-dionisio` instead, its driver skill under `.claude/skills/verify-dionisio/`. Read its `SKILL.md` and drive the app through its `control-dionisio` CLI via `shell`. The built-in `verify` is only the fallback in a repo that ships no driver skill of its own. There, drive the UI with whatever automation you have, or hand the user a concrete manual check. Do not claim done without observing the artifact. |
 | `plugin-dev:skill-development` (Claude's SKILL.md authoring guidance) | Follow your platform's skill-authoring guidance; the `writing-skills` skill if present. Keep `name` + `description` frontmatter and progressive disclosure. |
 | `loop` (recurring/self-paced re-invocation, used by `babysit`) | Codex has no `loop` skill. Re-run the step yourself on a cadence, or use a Codex scheduled task if available. |
 
