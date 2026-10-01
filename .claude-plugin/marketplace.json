@@ -3,7 +3,7 @@
   "owner": {
     "name": "Rafael Otero"
   },
-  "description": "Rafael's personal Claude Code skill sets: rstack (fork of open-pstack) and matt-skills (Matt Pocock's skills).",
+  "description": "Rafael's personal Claude Code skill sets: rstack and matt-skills (Matt Pocock's skills).",
   "plugins": [
     {
       "name": "rstack",
@@ -13,7 +13,8 @@
       "author": {
         "name": "Lauren Tan (original), Eric Litman (open-pstack)"
       },
-      "homepage": "https://github.com/ericlitman/open-pstack",
+      "homepage": "https://github.com/rafaeotero/rstack",
+      "repository": "https://github.com/rafaeotero/rstack",
       "license": "MIT",
       "keywords": ["rstack", "pstack", "poteto-mode", "workflow", "principles", "agent-style", "subagents", "unslop"]
     },

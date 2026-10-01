@@ -6,7 +6,7 @@ Closes #
 ## Verification
 
 - [ ] Bun tests, strict typecheck, static invariants, and plugin validation pass.
-- [ ] The exact candidate is installed in every affected harness.
+- [ ] The exact candidate is installed.
 - [ ] The changed behavior passes from each real user surface.
 - [ ] The installed version, action, and observed result appear below.
 

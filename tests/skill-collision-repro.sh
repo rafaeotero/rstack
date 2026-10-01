@@ -37,11 +37,10 @@ verof() { { grep -m1 '"version"' "$1" || true; } | sed -E 's/.*"version"[[:space
 vc="$(verof "$repo/plugins/rstack/.claude-plugin/plugin.json")"
 vx="$(verof "$repo/plugins/rstack/.codex-plugin/plugin.json")"
 vm="$(verof "$repo/.claude-plugin/marketplace.json")"
-vu="$(sed -n 's/| open-pstack version | `\([^`]*\)` |/\1/p' "$repo/UPSTREAM.md")"
-if [ -n "$vc" ] && [ "$vc" = "$vx" ] && [ "$vc" = "$vm" ] && [ "$vc" = "$vu" ]; then
-  note "ok: open-pstack version matches across UPSTREAM.md and the 3 manifests ($vc)"
+if [ -n "$vc" ] && [ "$vc" = "$vx" ] && [ "$vc" = "$vm" ]; then
+  note "ok: version matches across the 3 manifests ($vc)"
 else
-  note "FAIL: open-pstack version differs: upstream=$vu claude-plugin=$vc codex-plugin=$vx marketplace=$vm"
+  note "FAIL: version differs: claude-plugin=$vc codex-plugin=$vx marketplace=$vm"
   fail=1
 fi
 
@@ -52,7 +51,7 @@ legacy_model_pins="$(
   grep -REn \
     --include='*.md' --include='*.ts' --include='*.sh' \
     'claude:claude-(fable|opus)-[0-9]|^model: claude-(fable|opus)-[0-9]|--model claude-(fable|opus)-[0-9]' \
-    "$repo/plugins/rstack" "$repo/tests" "$repo/README.md" "$repo/docs/reference.md" \
+    "$repo/plugins/rstack" "$repo/tests" "$repo/README.md" \
     2>/dev/null || true
 )"
 standalone_code_pins="$(
