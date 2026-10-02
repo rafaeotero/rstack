@@ -9,14 +9,14 @@
       "name": "rstack",
       "source": "./plugins/rstack",
       "description": "if you want to go fast, go deep first. rstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence.",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "author": {
         "name": "Lauren Tan (original), Eric Litman (open-pstack)"
       },
       "homepage": "https://github.com/rafaeotero/rstack",
       "repository": "https://github.com/rafaeotero/rstack",
       "license": "MIT",
-      "keywords": ["rstack", "pstack", "poteto-mode", "workflow", "principles", "agent-style", "subagents", "unslop"]
+      "keywords": ["rstack"]
     },
     {
       "name": "matt-skills",

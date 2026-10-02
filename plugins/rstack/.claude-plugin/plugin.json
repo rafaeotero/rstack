@@ -1,7 +1,7 @@
 {
   "name": "rstack",
   "displayName": "rstack",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "if you want to go fast, go deep first. rstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence. Ported from cursor/plugins/rstack for Claude Code and Codex.",
   "author": {
     "name": "Lauren Tan"
@@ -10,12 +10,6 @@
   "repository": "https://github.com/rafaeotero/rstack",
   "license": "MIT",
   "keywords": [
-    "rstack",
-    "poteto-mode",
-    "workflow",
-    "principles",
-    "agent-style",
-    "subagents",
-    "unslop"
+    "rstack"
   ]
 }
