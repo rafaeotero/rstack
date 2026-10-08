@@ -2,6 +2,11 @@
 
 **You own the design. Plan, review, verify.** Delegate implementation; stay in the lead.
 
+**Before step 1.** Two steps, in this order.
+
+- **Map.** If the driver skill keeps a feature map and the screen the feature changes or extends has no entry, write that entry first. Explore the screen through the driver, write the entry in the map's own contract, and commit it on the working branch so it ships with the feature. A driver skill with no map skips this, no note needed.
+- **Seed.** If the request names a tenant and the driver skill has a tenant snapshot (export from production, overlay on the local seed), load it and build and verify on it. No tenant named, or no snapshot in the driver, means the plain seed. A snapshot that fails to load is one line in the PR body, never a stop.
+
 1. `how` over the affected subsystem.
 2. `architect` for parallel design exploration. Skipping stays as `architect skipped: <reason>`; do not fold the design decision silently into implementation.
 3. Write the throughput checkpoint as four todo items. A dimension that genuinely does not apply (single file, no fan-out) keeps its item with `n/a: <reason>` rather than being dropped:
