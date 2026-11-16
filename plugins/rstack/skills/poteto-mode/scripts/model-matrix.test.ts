@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { EFFORTS, type Effort } from "./types.ts";
 
-const PLUGIN_ROOT = join(import.meta.dir, "../../../..");
+const PLUGIN_ROOT = join(import.meta.dir, "../../..");
 const DISPATCH_PATH = join(
   PLUGIN_ROOT,
   "skills/poteto-mode/references/provider-dispatch.md"
@@ -20,6 +19,9 @@ const MATRIX_HEADER = [
   "Selectable efforts",
   "Claude-native agent stem",
 ] as const;
+
+const EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const;
+type Effort = (typeof EFFORTS)[number];
 
 const FAMILY_ORDER = ["fable", "sol", "grok", "opus"] as const;
 const PROVIDERS = ["claude", "codex", "grok"] as const;
@@ -373,14 +375,31 @@ describe("model matrix", () => {
   it("binds Claude-native dispatch to the matrix mapping", () => {
     const dispatch = readFileSync(DISPATCH_PATH, "utf8");
     const nativeStart = dispatch.indexOf("## Native lanes");
-    const externalStart = dispatch.indexOf("## External lanes");
+    const t3Start = dispatch.indexOf("## T3 lanes");
     expect(nativeStart).toBeGreaterThan(-1);
-    expect(externalStart).toBeGreaterThan(nativeStart);
-    const nativeLanes = dispatch.slice(nativeStart, externalStart);
+    expect(t3Start).toBeGreaterThan(nativeStart);
+    const nativeLanes = dispatch.slice(nativeStart, t3Start);
     expect(nativeLanes).toContain(
       "match the descriptor's `(provider, model)` to one model-matrix row"
     );
     expect(nativeLanes).toContain("`rstack-<stem>-<effort>`");
+  });
+
+  it("routes every non-native provider through T3 delegate_task", () => {
+    const dispatch = readFileSync(DISPATCH_PATH, "utf8");
+    expect(dispatch).toContain(
+      "| Claude Code | native `Agent` | T3 `delegate_task` | T3 `delegate_task` |"
+    );
+    expect(dispatch).toContain(
+      "| Codex | T3 `delegate_task` | native `spawn_agent` | T3 `delegate_task` |"
+    );
+    const t3Lanes = dispatch.slice(
+      dispatch.indexOf("## T3 lanes"),
+      dispatch.indexOf("## Completion and dropouts")
+    );
+    expect(t3Lanes).toContain("`orchestrator_capabilities`");
+    expect(t3Lanes).toContain("Never pick the nearest catalog entry.");
+    expect(t3Lanes).toContain("T3 children do not receive the parent's MCP surface.");
   });
 
   it("normalizes old rolling-family pins before any runtime route", () => {
@@ -394,6 +413,6 @@ describe("model matrix", () => {
     expect(normalization).toContain("Never pass the versioned predecessor to Claude.");
     expect(normalization).toContain("without writing user files");
     expect(normalization).toContain("`/setup-rstack` will rewrite it");
-    expect(normalization).toContain("runner rejects a missed Fable or Opus version pin");
+    expect(normalization).toContain("a missed Fable or Opus version pin is never dispatched");
   });
 });

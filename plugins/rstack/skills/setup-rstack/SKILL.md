@@ -35,15 +35,15 @@ Treat the normalized values as current role-to-family assignments. Overlay those
 
 ### 3. Detect provider availability and choose the role map
 
-Determine which providers this machine can reach before choosing anything. A provider is reachable when its CLI is on `PATH` and its login check passes.
+Determine which providers this machine can reach before choosing anything. The parent's own provider is reachable natively. Every other provider is reachable when T3 Code's `orchestrator_capabilities` lists it with `canRunChildTask: true` and its catalog contains the matrix model (for Claude, a model of each family the map uses).
 
-| Provider | CLI | Login check |
+| Provider | From a Claude parent | From a Codex parent |
 |---|---|---|
-| claude | this harness, or `claude` | native from a Claude parent; `claude auth status --json` otherwise |
-| codex | `codex` | `codex login status` |
-| grok | `grok` | `grok models` |
+| claude | native | `orchestrator_capabilities` lists `claudeAgent` |
+| codex | `orchestrator_capabilities` lists `codex` with `gpt-6.1-sol` | native |
+| grok | `orchestrator_capabilities` lists `grok` with `grok-4.6` | `orchestrator_capabilities` lists `grok` with `grok-4.6` |
 
-An unreachable provider is an expected outcome, not a failure. Codex and Grok each require their own paid subscription and most operators will not hold both. Claude is the only provider assumed present; if its login check fails, stop and write nothing.
+An unreachable provider is an expected outcome, not a failure. Codex and Grok each require their own paid subscription and most operators will not hold both. Claude is the only provider assumed present; if it is unreachable, stop and write nothing. Outside T3 Code there is no `orchestrator_capabilities`, so only the parent's own provider is reachable.
 
 Pick the availability tier matching the reachable set and use its role map as the first-run map. On a rerun the loaded sheet is the map; report every role whose provider is no longer reachable and offer that tier's value for those roles only, never a whole-sheet reset.
 
@@ -56,22 +56,22 @@ Provider-qualified per-role choices. Read the installed rstack provider-dispatch
 
 feature: grok:grok-4.6@xhigh
 refactoring: claude:opus@high
-bug-fix: codex:gpt-5.6-sol@medium
-perf-issue: codex:gpt-5.6-sol@medium
+bug-fix: codex:gpt-6.1-sol@medium
+perf-issue: codex:gpt-6.1-sol@medium
 hillclimb: claude:opus@medium
 judgment and prose: claude:fable@medium
 hardest tasks: claude:fable@high
 how explorer: grok:grok-4.6@high
 how explainer: claude:opus@high
-how critics: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh
+how critics: claude:opus@xhigh, codex:gpt-6.1-sol@high, grok:grok-4.6@xhigh
 why investigators: claude:opus@medium
 why synthesizer: claude:opus@high
 reflect tooling, judgment, divergent, synthesizer: inherit-parent
-arena runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
-arena cross-judge pool: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
+arena runners: claude:opus@xhigh, codex:gpt-6.1-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
+arena cross-judge pool: claude:opus@xhigh, codex:gpt-6.1-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
 swarm workers: claude:opus@medium
-architect runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
-interrogate reviewers: claude:opus@xhigh, codex:gpt-5.6-sol@high, grok:grok-4.6@xhigh
+architect runners: claude:opus@xhigh, codex:gpt-6.1-sol@high, grok:grok-4.6@xhigh, claude:fable@medium
+interrogate reviewers: claude:opus@xhigh, codex:gpt-6.1-sol@high, grok:grok-4.6@xhigh
 ```
 
 Claude and Codex reachable, no Grok. Every Grok role moves to Opus at the same effort:
@@ -83,22 +83,22 @@ Provider-qualified per-role choices. Read the installed rstack provider-dispatch
 
 feature: claude:opus@xhigh
 refactoring: claude:opus@high
-bug-fix: codex:gpt-5.6-sol@medium
-perf-issue: codex:gpt-5.6-sol@medium
+bug-fix: codex:gpt-6.1-sol@medium
+perf-issue: codex:gpt-6.1-sol@medium
 hillclimb: claude:opus@medium
 judgment and prose: claude:fable@medium
 hardest tasks: claude:fable@high
 how explorer: claude:opus@high
 how explainer: claude:opus@high
-how critics: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high
+how critics: claude:opus@xhigh, codex:gpt-6.1-sol@high, claude:opus@high
 why investigators: claude:opus@medium
 why synthesizer: claude:opus@high
 reflect tooling, judgment, divergent, synthesizer: inherit-parent
-arena runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high, claude:fable@medium
-arena cross-judge pool: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high, claude:fable@medium
+arena runners: claude:opus@xhigh, codex:gpt-6.1-sol@high, claude:opus@high, claude:fable@medium
+arena cross-judge pool: claude:opus@xhigh, codex:gpt-6.1-sol@high, claude:opus@high, claude:fable@medium
 swarm workers: claude:opus@medium
-architect runners: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high, claude:fable@medium
-interrogate reviewers: claude:opus@xhigh, codex:gpt-5.6-sol@high, claude:opus@high
+architect runners: claude:opus@xhigh, codex:gpt-6.1-sol@high, claude:opus@high, claude:fable@medium
+interrogate reviewers: claude:opus@xhigh, codex:gpt-6.1-sol@high, claude:opus@high
 ```
 
 Claude only. Every Codex and Grok role moves to Claude, and panel lanes that would collide are spread across Opus and Fable so each panel keeps distinct lanes:
@@ -156,14 +156,14 @@ A provider ruled unreachable in step 3 contributes no pairs, because its roles a
 
 | Family | Pair source | Claude parent route | Codex parent route | Availability proof |
 |---|---|---|---|---|
-| Fable | Fable matrix row + each effort used | native Agent `rstack-fable-<effort>` | Claude CLI | native one-turn probe or `claude auth status --json` plus one-turn probe |
-| Sol | Sol matrix row + each effort used | `codex exec` | native `spawn_agent` | `codex login status` plus one-turn probe or native one-turn probe |
-| Grok | Grok matrix row + each effort used | Grok CLI | Grok CLI | `grok models` must list the requested model; one-turn probe |
-| Opus | Opus matrix row + each effort used | native Agent `rstack-opus-<effort>` | Claude CLI | native one-turn probe or `claude auth status --json` plus one-turn probe |
+| Fable | Fable matrix row + each effort used | native Agent `rstack-fable-<effort>` | T3 `delegate_task` | one-turn probe on the route |
+| Sol | Sol matrix row + each effort used | T3 `delegate_task` | native `spawn_agent` | one-turn probe on the route |
+| Grok | Grok matrix row + each effort used | T3 `delegate_task` | T3 `delegate_task` | one-turn probe on the route |
+| Opus | Opus matrix row + each effort used | native Agent `rstack-opus-<effort>` | T3 `delegate_task` | one-turn probe on the route |
 
-Use a tiny read-only probe that returns a unique marker. A login-status command alone proves credentials, not that the requested model and effort flags run. Record native and external results separately. Never call the external launcher for the parent's own provider. On a Claude parent, the Fable and Opus probes are one-turn runs of the mapped `rstack-<stem>-<effort>` agent. On a Codex parent, the Sol probe is native `spawn_agent` with the selected `reasoning_effort`. Every other pair uses the external runner with the selected effort flag.
+Use a tiny read-only probe that returns a unique marker. A catalog listing alone proves the provider is configured, not that the requested model and effort run. Record native and T3 results separately. Never send the parent's own provider through `delegate_task`. On a Claude parent, the Fable and Opus probes are one-turn runs of the mapped `rstack-<stem>-<effort>` agent. On a Codex parent, the Sol probe is native `spawn_agent` with the selected `reasoning_effort`. Every other pair is a read-only `delegate_task` built from the provider-dispatch mapping, with the selected effort in `target.options`. Launch every probe in one fan-out phase and let completions wake the parent.
 
-Receipts and native transcripts prove the requested effort and the route. They do not prove a provider's hidden applied reasoning depth. There is no implicit timeout, weaker-model fallback, same-provider external fallback, or second mutable configuration source.
+T3 task results and native transcripts prove the requested effort and the route. They do not prove a provider's hidden applied reasoning depth. There is no implicit timeout, weaker-model fallback, same-provider T3 fallback, or second mutable configuration source.
 
 ### 7. Render
 
@@ -180,7 +180,7 @@ Refuse an unqualified slug, an unavailable route, a model other than the four ma
 
 Show any rolling-alias migrations as original and normalized descriptors. Then show the route table for this parent and every rendered role and descriptor. Ask for confirmation before writing.
 
-Why and Reflect require the parent's live MCP surface, which the bounded external runner deliberately omits. Keep their investigator, reviewer, and synthesizer roles on a lane that runs natively in the parent: any `claude:*` descriptor on a Claude parent, any `codex:*` descriptor on a Codex parent, or `inherit-parent` / `auto` on either. A pinned native descriptor keeps the MCP surface and the model; an alias keeps the surface and takes whatever model the parent happens to be. Never route these roles through the external runner. `inherit-parent` and `auto` always validate, but say when they reduce a panel's provider diversity. For panel roles, one lane runs per entry. The list length is the fan-out count. `arena cross-judge pool` is a list from which Arena chooses a provider different from the parent and base candidate when possible. `swarm workers` is the default for every worker unless a race explicitly assigns another descriptor.
+Why and Reflect require the parent's live MCP surface, which a T3 delegated child does not inherit. Keep their investigator, reviewer, and synthesizer roles on a lane that runs natively in the parent: any `claude:*` descriptor on a Claude parent, any `codex:*` descriptor on a Codex parent, or `inherit-parent` / `auto` on either. A pinned native descriptor keeps the MCP surface and the model; an alias keeps the surface and takes whatever model the parent happens to be. Never route these roles through `delegate_task`. `inherit-parent` and `auto` always validate, but say when they reduce a panel's provider diversity. For panel roles, one lane runs per entry. The list length is the fan-out count. `arena cross-judge pool` is a list from which Arena chooses a provider different from the parent and base candidate when possible. `swarm workers` is the default for every worker unless a race explicitly assigns another descriptor.
 
 Every non-alias value must match `<provider>:<model>@<effort>` and must have passed step 6.
 
@@ -190,12 +190,12 @@ Name the availability tier chosen in step 3 and every role it moved off its full
 
 Render the parent integration in memory before either write. On Claude, the integration is the single `@~/.claude/rstack-models.md` include in `~/.claude/CLAUDE.md`. On Codex, it is the exact sheet bytes between one `<!-- rstack:models:begin -->` and `<!-- rstack:models:end -->` pair in `~/.codex/AGENTS.md`. Replace that whole bounded block on a rerun. Insert one block at the end on first run. If either marker is missing, duplicated, or reversed, stop and report inconsistent state instead of guessing a boundary.
 
-Snapshot every target's current bytes. Write the sheet and parent integration only after all four probes pass and the operator confirms. Read both targets back and compare them with the in-memory render. If either write or readback fails, restore every snapshot and report the failure. An unchanged rerun must produce byte-identical sheet and integration content after normalization.
+Snapshot every target's current bytes. Write the sheet and parent integration only after every probe passes and the operator confirms. Read both targets back and compare them with the in-memory render. If either write or readback fails, restore every snapshot and report the failure. An unchanged rerun must produce byte-identical sheet and integration content after normalization.
 
 Do not copy the model sheet between harnesses without rerunning the parent-specific probes; route availability can differ even on the same host.
 
 ### 10. Behavioral smoke
 
-Before declaring setup complete, run one small read-only mixed panel from this parent: all four chosen descriptors, distinct output/receipt paths, and an independent cross-judge. Launch Claude-native agents and every external process in the background with retained handles, then drain them. Verify the native transcript entries and every external receipt. A structural config check or unit test is not a substitute.
+Before declaring setup complete, run one small read-only mixed panel from this parent: one lane per family the sheet uses and an independent cross-judge. Launch native agents in the background and every T3 lane as an async `delegate_task` in the same fan-out phase, then wait for every completion. Verify the native transcript entries and every T3 receipt as provider dispatch defines it. A structural config check or unit test is not a substitute.
 
-Report the sheet path, parent route table, requested-effort probe results, smoke results, and external elapsed/token/cost receipts. Re-running this skill re-probes and updates the same sheet. Do not claim the provider exposed hidden applied-effort observability.
+Report the sheet path, parent route table, requested-effort probe results, smoke results, and each T3 receipt (`taskId`, echoed provider, model, and options, terminal status, wall-clock time). Re-running this skill re-probes and updates the same sheet. Do not claim the provider exposed hidden applied-effort observability.
