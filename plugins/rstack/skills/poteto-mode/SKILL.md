@@ -7,7 +7,7 @@ description: poteto's agent style for concise, detailed responses, deliberate su
 
 ## Platform Adaptation
 
-These skills share one tree across Claude Code and Codex. Read [`references/provider-dispatch.md`](references/provider-dispatch.md) whenever a configured role launches. It defines the provider-qualified model descriptors, native/external route table, launcher, isolation, receipts, and dropout policy. Children never choose routes. When a skill names a Claude tool or built-in skill (`run`, `verify`, `plugin-dev:skill-development`), read [`references/codex-tools.md`](references/codex-tools.md) for the Codex equivalent.
+These skills share one tree across Claude Code and Codex. Read [`references/provider-dispatch.md`](references/provider-dispatch.md) whenever a configured role launches. It defines the provider-qualified model descriptors, native/T3 route table, `delegate_task` mapping, isolation, receipts, and dropout policy. Children never choose routes. When a skill names a Claude tool or built-in skill (`run`, `verify`, `plugin-dev:skill-development`), read [`references/codex-tools.md`](references/codex-tools.md) for the Codex equivalent.
 
 ## Non-negotiables
 
@@ -85,7 +85,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-For `inherit-parent`, `auto`, or an unconfigured native ad-hoc helper, prefer `poteto-agent`. `/poteto-mode` and `poteto-agent` route through the same wrapper. A provider-qualified role instead follows provider dispatch: Claude's shipped frontier agent definitions select the model alias and requested effort, Codex passes both to `spawn_agent`, and external providers run through the deterministic launcher. Routed workflow skills set the task and access mode; do not override their choices.
+For `inherit-parent`, `auto`, or an unconfigured native ad-hoc helper, prefer `poteto-agent`. `/poteto-mode` and `poteto-agent` route through the same wrapper. A provider-qualified role instead follows provider dispatch: Claude's shipped frontier agent definitions select the model alias and requested effort, Codex passes both to `spawn_agent`, and every other provider runs through T3 `delegate_task`. Routed workflow skills set the task and access mode; do not override their choices.
 
 **Defaults for every delegation.** Start independent lanes together, use file pointers rather than inlined dumps, preserve only the tools or MCPs the task needs, and assign every writer a worktree or unique output directory. `/setup-rstack` configures the descriptor per role. Defaults use Grok 4.6 for feature work and exploration; GPT-5.6 Sol for bug fixes and performance work; Opus for refactoring, explanation, hillclimbing, and swarm work; Fable for judgment and prose; and a mixed-provider panel for model-diverse judgment. Effort is set per role, not per family. The panel defaults are enumerated in `arena`, `architect`, `interrogate`, and `how`. `/setup-rstack` picks an availability tier for the providers a machine can actually reach, so a Claude-only machine gets Claude equivalents at setup time rather than a runtime fallback. `inherit-parent` and `auto` use the parent model natively and reduce provider diversity when used in a panel.
 

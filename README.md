@@ -30,7 +30,7 @@ pstack does not ask you to trust an agent on day one. It helps the agent leave e
 
 ## Install
 
-You need a current Claude Code or Codex installation. For the full four-model review, install and sign in to the Claude Code, Codex, and Grok command-line tools. [Bun](https://bun.sh) runs the small local tool that starts models outside the app you are using. You can still use the core workflows with fewer models.
+You need a current Claude Code or Codex installation. For the full four-model review, run it inside [T3 Code](https://t3.codes) with its Claude, Codex, and Grok providers signed in; rstack starts models outside the app you are using through T3's `delegate_task`. You can still use the core workflows with fewer models.
 
 ### Claude Code
 

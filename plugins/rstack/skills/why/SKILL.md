@@ -115,7 +115,7 @@ Source control is always available through git and `gh`. For the other six, clas
 
 Aim for a complete **coverage map**, not a minimal one. A null result from an issue tracker is evidence the decision was not ticketed, a useful fact in itself. Document the null, don't skip the search.
 
-Launch all matching investigators in one fan-out phase so they run concurrently. One investigator per category lets each specialize in one tool's query vocabulary and result shape. Don't ask one agent to cover multiple MCPs. Route each through your configured why-investigators descriptor (default `claude:opus@medium`) with the assigned MCP available. The descriptor must name a lane that runs natively in this parent, because the external runner omits ambient MCPs. Investigators still do not write files; that is a posture even when the MCP-capable execution mode is not mechanically read-only.
+Launch all matching investigators in one fan-out phase so they run concurrently. One investigator per category lets each specialize in one tool's query vocabulary and result shape. Don't ask one agent to cover multiple MCPs. Route each through your configured why-investigators descriptor (default `claude:opus@medium`) with the assigned MCP available. The descriptor must name a lane that runs natively in this parent, because T3 delegated children do not inherit the parent's MCPs. Investigators still do not write files; that is a posture even when the MCP-capable execution mode is not mechanically read-only.
 
 Each investigator gets:
 1. The base prompt from `references/investigator-prompt.md`

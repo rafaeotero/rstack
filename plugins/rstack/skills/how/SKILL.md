@@ -44,7 +44,7 @@ Decompose the question into 2-4 parallel exploration angles, each a distinct sli
 
 The right decomposition depends on the question. Use your judgment. Narrow questions: 2 explorers is fine. Broad subsystems: up to 4.
 
-Start all explorers in one fan-out phase through provider dispatch. Use your configured how-explorer descriptor (default `grok:grok-4.6@high`) in `read-only` mode. A native lane uses the parent subagent primitive; an external lane uses the launcher directly.
+Start all explorers in one fan-out phase through provider dispatch. Use your configured how-explorer descriptor (default `grok:grok-4.6@high`) in `read-only` mode. A native lane uses the parent subagent primitive; any other provider uses T3 `delegate_task`.
 
 Each explorer gets the same base prompt from `references/explorer-prompt.md` plus a specific exploration angle naming its slice. Each explorer should:
 - Start broad: Glob for relevant directories, Grep for key types/interfaces/class names
@@ -99,7 +99,7 @@ Run the full explain flow above (Steps 1-4). You must understand the architectur
 
 ### Step 2. Spawn Critics
 
-After the explanation is complete, start one architectural critic per descriptor in your configured how-critics list (defaults `claude:opus@xhigh`, `codex:gpt-5.6-sol@high`, `grok:grok-4.6@xhigh`) in one fan-out phase.
+After the explanation is complete, start one architectural critic per descriptor in your configured how-critics list (defaults `claude:opus@xhigh`, `codex:gpt-6.1-sol@high`, `grok:grok-4.6@xhigh`) in one fan-out phase.
 
 Route each critic descriptor in `read-only` mode. These are minimum reasoning levels. The lead may raise effort within the same current-frontier model when the architecture warrants it, but must not substitute providers silently.
 
